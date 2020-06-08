@@ -50,7 +50,7 @@ double Kd=0.025;   //....Needs tuning?
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);                   // PID library
 
 const int MAX_TOOL_RPM = 30000;                                              // Max RPM for Spindle\Router
-const int MAX_PWM_INPUT_US = 2024;                                           // Settings the microseconds of the max PWM from Marlin.
+int MAX_PWM_INPUT_US = 0;                                                    // Settings the microseconds of the max PWM from Marlin.
 const int MIN_TOOL_RPM = 5000;                                               // Min Spindle RPM to control to. \\Not yet implemented
 
 void setup()
@@ -186,6 +186,9 @@ void spindleRPM() {
 // PWM duty cycle. ISR.
 void rising() {
    // Capture when this is rising.
+   if (MAX_PWM_INPUT_US == 0 && prev_time != 0) {
+     MAX_PWM_INPUT_US = micros()-prev_time;
+   }
    prev_time = micros();
 
    // Set the next interrupt.
