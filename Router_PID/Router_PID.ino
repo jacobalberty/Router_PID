@@ -50,7 +50,7 @@ double Kd=0.025;   //....Needs tuning?
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);                   // PID library
 
 const int MAX_TOOL_RPM = 30000;                                              // Max RPM for Spindle\Router
-int MAX_PWM_INPUT_US = 0;                                                    // Settings the microseconds of the max PWM from Marlin.
+volatile int MAX_PWM_INPUT_US = -1;                                          // Settings the microseconds of the max PWM from Marlin.
 const int MIN_TOOL_RPM = 5000;                                               // Min Spindle RPM to control to. \\Not yet implemented
 
 void setup()
@@ -112,6 +112,8 @@ void loop() {
      Input=0.0;             //Clear PID Values
      Output=0.0;            //Clear PID Values
      Setpoint=0.0;          //Clear PID Values
+     MAX_PWM_INPUT_US = -1; //Clear PWM timing
+     prev_time = 0;         //Clear PWM Previous time
                          
    }
 
@@ -188,7 +190,7 @@ void rising() {
    // Ideally we store micros() in a local variable and use it instead of calling again but this is breaking things. 
    // int new_pulse = micros();
    // Capture when this is rising.
-   if (MAX_PWM_INPUT_US == 0 && prev_time != 0) {
+   if (MAX_PWM_INPUT_US == -1 && prev_time != 0) {
      MAX_PWM_INPUT_US = (micros()-prev_time)*.99;
    }
    prev_time = micros();
